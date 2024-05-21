@@ -1,4 +1,4 @@
-FetchHotfix
+# FetchHotfix
  smol script to get the latest hotfix for an anime game with stars and rails
 
 # Usage
