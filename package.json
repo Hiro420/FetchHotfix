@@ -1,0 +1,17 @@
+{
+  "name": "gethotupdate",
+  "version": "1.0.0",
+  "description": "smol script to get the latest hotfix for an anime game with stars and rails",
+  "main": "fetch.ts",
+  "scripts": {
+    "start": "ts-node fetch.ts"
+  },
+  "keywords": [],
+  "author": "Hiro420",
+  "license": "ISC",
+  "devDependencies": {
+    "axios": "^1.7.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
