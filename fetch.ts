@@ -108,7 +108,6 @@ async function main() {
     // Fetch the dispatch
     try {
         const url_dispatch = `${query_dispatch_pre}?version=${version}&language_type=3&platform_type=3&channel_id=1&sub_channel_id=1&is_new_format=1`;
-        console.log(url_dispatch);
         const response_dispatch = await axios.get(url_dispatch);
         var protoBytes_dispatch = Buffer.from(response_dispatch.data, 'base64');
         var decodedDispatch:Dispatch = Dispatch.decode(protoBytes_dispatch);
@@ -123,8 +122,6 @@ async function main() {
 
     // construct the url
     const url = `${urlStart}?version=${version}&language_type=3&dispatch_seed=${seedStr}&channel_id=1&sub_channel_id=1&is_need_url=1`;
-
-    console.log(url);
 
     // fetch the url
     try {
