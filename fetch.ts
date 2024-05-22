@@ -88,7 +88,7 @@ async function main() {
         case 'OSLive':
             urlStart = 'https://globaldp-prod-os02.starrails.com';
             break;
-        case 'CNLive':
+        case 'CnLive':
             urlStart = 'https://globaldp-prod-cn02.bhsr.com';
             break;
         default:
