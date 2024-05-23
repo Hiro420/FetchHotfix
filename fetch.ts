@@ -121,7 +121,7 @@ async function main() {
     }
 
     // construct the url
-    const url = `${urlStart}?version=${version}&language_type=3&dispatch_seed=${seedStr}&channel_id=1&sub_channel_id=1&is_need_url=1`;
+    const url = `${urlStart}?version=${version}&platform_type=1&language_type=3&dispatch_seed=${seedStr}&channel_id=1&sub_channel_id=1&is_need_url=1`;
 
     // fetch the url
     try {
