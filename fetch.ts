@@ -6,7 +6,7 @@ import { Dispatch } from "./dispatch";
 
 const StarRailDir = process.argv.slice(2)[0];
 
-const readString = (buffer: Buffer, offset: number): string => {
+const readString = (buffer: Buffer, offset: number = 0): string => {
     const lengthByte = buffer.readUInt8(offset);
     const endPos = offset + lengthByte + 1;
     const stringData = buffer.toString('utf8', offset + 1, endPos);
@@ -36,53 +36,73 @@ const lastIndexOf = (buffer: Buffer, delimiter: number) => {
     return parts[parts.length - 1];
 }
 
-const findSequence = (buffer: Buffer, sequence: number[]) => {
-    for (let i = 0; i < buffer.length - sequence.length; i++) {
-      let match = true;
-      for (let j = 0; j < sequence.length; j++) {
-        if (buffer[i + j] !== sequence[j]) {
-          match = false;
-          break;
+function readUint24BE(buffer:Buffer, offset = 0): number {
+    return (buffer[offset] << 16) | (buffer[offset + 1] << 8) | buffer[offset + 2];
+}
+
+function seedSanityCheck(dispatchSeed: string): boolean {
+    // Seed will always be a hexadecimal string
+    return /^[0-9A-Fa-f]*$/.test(dispatchSeed);
+}
+
+function splitBuffer(buffer: Buffer, delimiter: number) {
+    const result:Buffer[] = [];
+    let start = 0;
+    for (let i = 0; i < buffer.length; i++) {
+        if (buffer[i] === delimiter) {
+            if (i > start) {
+                result.push(buffer.subarray(start, i));
+            }
+            start = i + 1;
         }
-      }
-      if (match) {
-        return i;
-      }
     }
-    return -1;
-};
+    if (start < buffer.length) {
+        result.push(buffer.subarray(start));
+    }
+    return result;
+}
+
+// Couldn't find a better solution for this
+function getDispatchSeed(buffersplits: Buffer[], constructedString: string): { version: string, seed: string } | null {
+    for (let i = 1; i < buffersplits.length; i++) {
+        if (buffersplits[i].length < 2) {
+            continue;
+        }
+        if (readString(buffersplits[i]).startsWith(constructedString)) {
+            let seed = readString(buffersplits[i - 1]);
+            if (seedSanityCheck(seed)) {
+                return { version: readString(buffersplits[i]), seed: seed };
+            } else {
+                return null;
+            }
+        }
+    }
+    return null;
+}
+
 
 async function main() {
     const buffer_BinaryVersion: Buffer = fs.readFileSync(path.join(StarRailDir, 'StarRail_Data', 'StreamingAssets', 'BinaryVersion.bytes'));
     const buffer_ClientConfig: Buffer = fs.readFileSync(path.join(StarRailDir, 'StarRail_Data', 'StreamingAssets', 'ClientConfig.bytes'));
 
-    // StartDesignData
-    const sequence = [0x53, 0x74, 0x61, 0x72, 0x74, 0x44, 0x65, 0x73, 0x69, 0x67, 0x6E, 0x44, 0x61, 0x74, 0x61];
     const buffer_ClientConfig_parts = stripEmptyBytes(buffer_ClientConfig);
     const query_dispatch_pre:string = readString(lastIndexOf(buffer_ClientConfig_parts, 0x00), 0);
-
-    // Find the start of the sequence
-    const startIndex = findSequence(buffer_BinaryVersion, sequence);
-    if (startIndex === -1) {
-      console.error('Sequence not found');
-      return;
+    
+    // TODO: parse the entire buffer properly
+    const zeroPattern = Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    const lastbuffer = buffer_BinaryVersion.subarray(buffer_BinaryVersion.lastIndexOf(zeroPattern) + zeroPattern.length);
+    const buffersplits = splitBuffer(lastbuffer, 0x00).filter((buffer: Buffer) => buffer.length > 0);
+    const Branch = readString(buffer_BinaryVersion, 1);
+    const Revision = readUint24BE(buffersplits[0]);
+    const Time = readString(buffersplits[1]);
+    const { version: versionStr, seed: seedStr } = getDispatchSeed(buffersplits, `${Time}-${Branch}-${Revision}`) || {};
+    
+    if (versionStr == null || seedStr == null) {
+        console.log(`Unable to parse dispatch seed for this game version, please ensure you entered the correct game path and try again.`);
+        process.exit(1);
     }
-  
-    // Skip the sequence
-    let offset = startIndex + sequence.length;
-  
-    // Skip 1 byte
-    offset += 1;
-  
-    // Read seed string
-    let seedStr = readString(buffer_BinaryVersion, offset);
+
     console.log(`Dispatch Seed: ${seedStr}`);
-
-    // Skip bytes
-    offset += seedStr.length+2;
-
-    // Read verion string
-    let versionStr = readString(buffer_BinaryVersion, offset);
 
     // Get the version number
     let versionSplit = versionStr.split('-');
