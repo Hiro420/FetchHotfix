@@ -106,8 +106,14 @@ async function main() {
 
     // Get the version number
     let versionSplit = versionStr.split('-');
-    let version:string = versionSplit[versionSplit.length - 2];
-    let build:string = versionSplit[versionSplit.length - 1];
+    let version, build;
+    if (versionSplit.length === 7) {
+        version = versionSplit[versionSplit.length - 3];
+        build = versionSplit[versionSplit.length - 2];
+    } else if (versionSplit.length === 6) {
+        version = versionSplit[versionSplit.length - 2];
+        build = versionSplit[versionSplit.length - 1];
+    }
     
     console.log(`Version: ${version}`);
     console.log(`Build: ${build}`);
