@@ -106,8 +106,14 @@ async function main() {
 
     // Get the version number
     let versionSplit = versionStr.split('-');
-    let version:string = versionSplit[versionSplit.length - 2];
-    let build:string = versionSplit[versionSplit.length - 1];
+
+    // Those are unused in this tool, but they are here for better understanding of bytes structure
+    const time:string = `${versionSplit[0]}-${versionSplit[1]}`;
+    const branch:string = versionSplit[2];
+    const revision:number = parseInt(versionSplit[3]);
+
+    let version:string = versionSplit[4];
+    let build:string = versionSplit[5];
     
     console.log(`Version: ${version}`);
     console.log(`Build: ${build}`);
