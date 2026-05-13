@@ -11,7 +11,7 @@
   "license": "ISC",
   "devDependencies": {
     "axios": "^1.15.2",
-    "protobufjs": "^7.5.5",
+    "protobufjs": "^7.5.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }
