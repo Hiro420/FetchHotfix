@@ -10,7 +10,7 @@
   "author": "Hiro420",
   "license": "ISC",
   "devDependencies": {
-    "axios": "^1.16.0",
+    "axios": "^1.18.0",
     "protobufjs": "^7.5.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
